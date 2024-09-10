@@ -51,7 +51,7 @@ const Post = () => {
         className="rounded-sm my-2 w-full aspect-square object-cover"
         src="https://core-pht-proxy.maps.yandex.ru/v1/photos/download?photo_id=9GYkB9hP7cjOM81tfqXdgA&image_size=L"
         alt=""
-        srcset=""
+        srcSet=""
       />
 
       <div className="flex items-center justify-between my-2">
