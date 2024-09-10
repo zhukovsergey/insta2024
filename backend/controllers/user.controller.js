@@ -6,6 +6,7 @@ import cloudinary from "../utils/cloudinary.js";
 
 export const register = async (req, res) => {
   try {
+    console.log("reg");
     const { username, email, password } = req.body;
     if (!username || !email || !password) {
       return res.status(401).json({
@@ -95,6 +96,7 @@ export const login = async (req, res) => {
 };
 
 export const logout = async (req, res) => {
+  console.log("logout");
   try {
     return res.cookie("token", "", { maxAge: 0 }).json({
       message: "Вы вышли из аккаунта",
