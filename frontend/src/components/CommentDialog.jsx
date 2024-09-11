@@ -4,10 +4,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Link } from "react-router-dom";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "./ui/button";
+import { useSelector } from "react-redux";
+import Comment from "./Comment";
 
 const CommentDialog = ({ open, setOpen }) => {
   const [text, setText] = useState("");
-
+  const { selectedPost } = useSelector((store) => store.post);
   const changeEventHandler = (e) => {
     const inputText = e.target.value;
     if (inputText.trim().length > 0) {
@@ -28,8 +30,8 @@ const CommentDialog = ({ open, setOpen }) => {
         <div className="flex flex-1">
           <div className="w-1/2">
             <img
-              src="https://core-pht-proxy.maps.yandex.ru/v1/photos/download?photo_id=9GYkB9hP7cjOM81tfqXdgA&image_size=L"
-              alt=""
+              src={"http://localhost:8000" + selectedPost?.image}
+              alt="post_img"
               className="w-full h-full object-cover rounded-l-lg"
             />
           </div>
@@ -39,12 +41,19 @@ const CommentDialog = ({ open, setOpen }) => {
               <div className="flex gap-3 items-center">
                 <Link>
                   <Avatar>
-                    <AvatarImage src="" alt="post_image" />
-                    <AvatarFallback>CN</AvatarFallback>
+                    <AvatarImage
+                      src={selectedPost?.author?.profilePicture}
+                      alt="author_img"
+                    />
+                    <AvatarFallback>
+                      {selectedPost?.author?.username?.slice(0, 2)}
+                    </AvatarFallback>
                   </Avatar>
                 </Link>
                 <div>
-                  <Link className="font-semibold text-xs">username</Link>
+                  <Link className="font-semibold text-xs">
+                    {selectedPost?.author?.username}
+                  </Link>
                   {/*  <span className="text-gray-600 text-sm">Bio here..</span> */}
                 </div>
               </div>
@@ -64,7 +73,9 @@ const CommentDialog = ({ open, setOpen }) => {
             </div>
             <hr />
             <div className="flex-1 overflow-y-auto max-h-96 p-4">
-              comments ayenge
+              {selectedPost?.comments?.map((comment) => (
+                <Comment key={comment._id} comment={comment} />
+              ))}
             </div>
             <div className="p-4">
               <div className="flex items-center gap-3">

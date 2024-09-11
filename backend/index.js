@@ -14,6 +14,7 @@ const app = express();
 //middlewares
 app.use(express.json());
 app.use(cookieParser());
+app.use("/uploads", express.static("uploads"));
 app.use(urlencoded({ extended: true }));
 const corsOptions = {
   origin: "http://localhost:5173",

@@ -16,6 +16,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { setAuthUser } from "@/redux/authSlice";
 import CreatePost from "./CreatePost";
+import { setPosts, setSelectedPost } from "@/redux/postSlice";
 
 const LeftSidebar = () => {
   const [open, setOpen] = useState(false);
@@ -30,6 +31,8 @@ const LeftSidebar = () => {
       console.log(res);
       if (res.data.success) {
         dispatch(setAuthUser(null));
+        dispatch(setSelectedPost(null));
+        dispatch(setPosts([]));
         toast.success(res.data.message);
         navigate("/login");
         console.log(res);
