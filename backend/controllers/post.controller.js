@@ -3,6 +3,7 @@ import cloudinary from "../utils/cloudinary.js";
 import { User } from "../model/user.model.js";
 import { Post } from "../model/post.model.js";
 import { Comment } from "../model/comment.model.js";
+import fs from "fs";
 
 export const addNewPost = async (req, res) => {
   try {
@@ -15,23 +16,21 @@ export const addNewPost = async (req, res) => {
         success: false,
       });
     }
-    const optimizedImageBuffer = await sharp(image.buffer)
+
+    const newFileName = `${Date.now()}-${image.originalname}`;
+    const resizedImg = await sharp(image.buffer)
       .resize({
         width: 800,
         height: 800,
         fit: "inside",
       })
       .toFormat("webp")
-      .toBuffer();
-    const fileUri = `data:image/webp;base64,${optimizedImageBuffer.toString(
-      "base64"
-    )}`;
+      .toFile(`./uploads/${newFileName}`);
 
-    const cloudResponse = await cloudinary.uploader.upload(fileUri);
     const post = await Post.create({
       caption,
-      image: cloudResponse.secure_url,
-      authorId,
+      image: "/uploads/" + newFileName,
+      author: authorId,
     });
     const user = await User.findById(authorId);
     if (user) {
@@ -215,7 +214,12 @@ export const getCommentsOfPost = async (req, res) => {
 export const deletePost = async (req, res) => {
   try {
     const postId = req.params.id;
+
     const post = await Post.findById(postId);
+
+    fs.unlink(`.${post.image}`, (err) => {
+      if (err) console.log(err);
+    });
     const authorId = req.id;
     if (!post) {
       return res.status(404).json({
