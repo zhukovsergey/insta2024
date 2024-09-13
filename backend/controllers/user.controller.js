@@ -129,6 +129,7 @@ export const editProfile = async (req, res) => {
     const userId = req.id;
     const { bio, gender } = req.body;
     const profilePicture = req.file;
+    console.log(req.file);
     let cloudResponse;
     if (profilePicture) {
       const fileUri = getDataUri(profilePicture);
