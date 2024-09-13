@@ -52,6 +52,9 @@ const LeftSidebar = () => {
     if (text === "Создать") {
       setOpen(true);
     }
+    if (text === "Профиль") {
+      navigate(`/profile/${user?._id}`);
+    }
   };
   const sidebarItems = [
     { icon: <Home />, text: "Главная" },

@@ -153,6 +153,7 @@ export const editProfile = async (req, res) => {
 };
 
 export const getSuggestedUsers = async (req, res) => {
+  console.log("suggested req");
   try {
     const suggestedUsers = await User.find({ _id: { $ne: req.id } }).select(
       "-password"
