@@ -187,16 +187,19 @@ const Post = ({ post }) => {
         <span className="font-medium">{post.author?.username} </span>
         {post?.caption}
       </p>
-      <span
-        onClick={() => {
-          dispatch(setSelectedPost(post));
-          setOpen(true);
-        }}
-        className="cursor-pointer text-sm text-gray-400"
-      >
-        Посмотреть все комментарии {comment.length}
-      </span>
-      <CommentDialog open={open} setOpen={setOpen} />
+      {comment.length > 0 && (
+        <span
+          onClick={() => {
+            dispatch(setSelectedPost(post));
+            setOpen(true);
+          }}
+          className="cursor-pointer text-sm text-gray-400"
+        >
+          Посмотреть все комментарии {comment.length}
+        </span>
+      )}
+
+      <CommentDialog open={open} setOpen={setOpen} post={post} />
       <div className="flex">
         <input
           type="text"

@@ -2,6 +2,18 @@ import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 const Comment = ({ comment }) => {
+  const getDateAt = (date) => {
+    const newDate = new Intl.DateTimeFormat("ru-RU", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+    });
+
+    return newDate.format(new Date(date));
+  };
+
   return (
     <div className="my-2">
       <div className="flex gap-3 items-center">
@@ -15,6 +27,7 @@ const Comment = ({ comment }) => {
           {comment?.author?.username}:
           <span className="font-normal pl-1">{comment?.text}</span>
         </h2>
+        <span className="text-xs">: {getDateAt(comment?.createdAt)}</span>
       </div>
     </div>
   );
