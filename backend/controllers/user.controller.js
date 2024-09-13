@@ -2,8 +2,9 @@ import { User } from "../model/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import getDataUri from "../utils/datauri.js";
-import cloudinary from "../utils/cloudinary.js";
+
 import { Post } from "../model/post.model.js";
+import sharp from "sharp";
 
 export const register = async (req, res) => {
   try {
@@ -130,11 +131,17 @@ export const editProfile = async (req, res) => {
     const { bio, gender } = req.body;
     const profilePicture = req.file;
     console.log(req.file);
-    let cloudResponse;
-    if (profilePicture) {
-      const fileUri = getDataUri(profilePicture);
-      cloudResponse = await cloudinary.uploader.upload(fileUri);
-    }
+
+    const newFileName = `${Date.now()}-${profilePicture.originalname}`;
+    const resizedImg = await sharp(profilePicture.buffer)
+      .resize({
+        width: 800,
+        height: 800,
+        fit: "inside",
+      })
+      .toFormat("webp")
+      .toFile(`./uploads/${newFileName}`);
+
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({
@@ -144,8 +151,8 @@ export const editProfile = async (req, res) => {
     }
     if (bio) user.bio = bio;
     if (gender) user.gender = gender;
-    if (profilePicture) user.profilePicture = cloudResponse.secure_url;
-    await user.save();
+    if (profilePicture)
+      (user.profilePicture = "/uploads/" + newFileName), await user.save();
     return res.status(200).json({
       message: "Профиль успешно обновлен",
       success: true,
