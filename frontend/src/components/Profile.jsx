@@ -1,20 +1,22 @@
 import React, { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import useGetUserProfile from "@/hooks/useGetUserProfile";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import { AtSign } from "lucide-react";
+import { AtSign, Heart, MessageCircle } from "lucide-react";
 
 const Profile = () => {
   const params = useParams();
   const [activeTab, setActiveTab] = useState("posts");
   const userId = params.id;
   useGetUserProfile(userId);
-  const { userProfile } = useSelector((store) => store.auth);
-  const isLoggedInUserProfile = false;
+  const { userProfile, user } = useSelector((store) => store.auth);
+  const isLoggedInUserProfile = user?._id === userProfile?._id;
   const isFollowing = true;
+  const displayedPost =
+    activeTab === "posts" ? userProfile?.posts : userProfile?.bookmarks;
   const handleTabChange = (tab) => {
     setActiveTab(tab);
   };
@@ -37,12 +39,15 @@ const Profile = () => {
                   <span>{userProfile?.username}</span>
                   {isLoggedInUserProfile ? (
                     <>
-                      <Button
-                        className="hover:bg-gray-200 h-8"
-                        variant="secondary"
-                      >
-                        Редактировать
-                      </Button>
+                      <Link to="/account/edit">
+                        <Button
+                          className="hover:bg-gray-200 h-8"
+                          variant="secondary"
+                        >
+                          Редактировать
+                        </Button>
+                      </Link>
+
                       <Button
                         className="hover:bg-gray-200 h-8"
                         variant="secondary"
@@ -140,6 +145,34 @@ const Profile = () => {
                 ВИДЕО
               </span>
               <span className="py-3 cursor-pointer">ТЕГИ</span>
+            </div>
+            <div className="grid grid-cols-3 gap-1">
+              {displayedPost?.map((post) => {
+                return (
+                  <div
+                    key={post?._id}
+                    className="relative group cursor-pointer"
+                  >
+                    <img
+                      className="rounded-xl my-2 w-full aspect-square object-cover"
+                      src={"http://localhost:8000" + post.image}
+                      alt="post_image rounded-md"
+                    />
+                    <div className="rounded-xl m-1 absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="flex items-center text-white space-x-4">
+                        <button className="flex items-center gap-2 hover:text-gray-300">
+                          <Heart />
+                          <span>{post?.likes.length}</span>
+                        </button>
+                        <button className="flex items-center gap-2 hover:text-gray-300">
+                          <MessageCircle />
+                          <span>{post?.likes.length}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

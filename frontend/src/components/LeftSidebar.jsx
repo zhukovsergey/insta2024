@@ -55,6 +55,10 @@ const LeftSidebar = () => {
     if (text === "Профиль") {
       navigate(`/profile/${user?._id}`);
     }
+
+    if (text === "Главная") {
+      navigate("/");
+    }
   };
   const sidebarItems = [
     { icon: <Home />, text: "Главная" },
