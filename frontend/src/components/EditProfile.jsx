@@ -16,6 +16,7 @@ import {
 } from "./ui/select";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { setAuthUser } from "@/redux/authSlice";
 
 const EditProfile = () => {
   const imageRef = useRef();
@@ -27,12 +28,14 @@ const EditProfile = () => {
     gender: user?.gender,
   });
   const [loading, setLoading] = useState(false);
+  const [tempPhoto, setTempPhoto] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const fileChangeHandler = async (e) => {
     const file = e.target.files[0];
     if (file) {
       setInput({ ...input, profilePicture: file });
+      setTempPhoto(URL.createObjectURL(file));
     }
   };
   const selectChangeHandler = (value) => {
@@ -41,6 +44,7 @@ const EditProfile = () => {
 
   const editProfileHandler = async (e) => {
     e.preventDefault();
+    console.log(input);
     const formData = new FormData();
     formData.append("profilePicture", input.profilePicture);
     formData.append("bio", input.bio);
@@ -62,12 +66,22 @@ const EditProfile = () => {
 
       if (res.data.success) {
         setLoading(false);
+        const updatedUserData = {
+          ...user,
+          bio: res.data.user?.bio,
+          profilePicture: res.data.user?.profilePicture,
+          gender: res.data.user?.gender,
+        };
+        dispatch(setAuthUser(updatedUserData));
+        navigate(`/profile/${user._id}`);
         toast.success(res.data.message);
 
         console.log(res);
       }
     } catch (error) {
       console.log(error);
+      toast.ettot(error.response.data.message);
+      setLoading(false);
     }
   };
   return (
@@ -77,7 +91,9 @@ const EditProfile = () => {
         <div className="flex items-center bg-gray-100 justify-between rounded-xl p-4">
           <div className="flex items-center gap-3">
             <Avatar>
-              <AvatarImage src={user?.profilePicture} />
+              <AvatarImage
+                src={`http://localhost:8000${user?.profilePicture}`}
+              />
               <AvatarFallback>{user?.username.slice(0, 2)}</AvatarFallback>
             </Avatar>
 
@@ -92,6 +108,14 @@ const EditProfile = () => {
             ref={imageRef}
             onChange={fileChangeHandler}
           />
+          {tempPhoto && (
+            <img
+              onClick={() => imageRef.current.click()}
+              src={tempPhoto}
+              alt="profile"
+              className="w-20 h-20 rounded-full"
+            />
+          )}
           <Button
             onClick={() => imageRef.current.click()}
             className="bg-[#0095F6] h-8 hover:bg-[#076aac]"

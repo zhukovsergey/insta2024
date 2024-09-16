@@ -130,29 +130,32 @@ export const editProfile = async (req, res) => {
     const userId = req.id;
     const { bio, gender } = req.body;
     const profilePicture = req.file;
-    console.log(req.file);
+    console.log(req.body);
 
-    const newFileName = `${Date.now()}-${profilePicture.originalname}`;
-    const resizedImg = await sharp(profilePicture.buffer)
-      .resize({
-        width: 800,
-        height: 800,
-        fit: "inside",
-      })
-      .toFormat("webp")
-      .toFile(`./uploads/${newFileName}`);
-
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).select("-password");
     if (!user) {
       return res.status(404).json({
         message: "Пользователь не найден",
         success: false,
       });
     }
+
     if (bio) user.bio = bio;
     if (gender) user.gender = gender;
-    if (profilePicture)
-      (user.profilePicture = "/uploads/" + newFileName), await user.save();
+    if (profilePicture) {
+      const newFileName = `${Date.now()}-${profilePicture.originalname}`;
+      const resizedImg = await sharp(profilePicture.buffer)
+        .resize({
+          width: 800,
+          height: 800,
+          fit: "inside",
+        })
+        .toFormat("webp")
+        .toFile(`./uploads/${newFileName}`);
+      user.profilePicture = "/uploads/" + newFileName;
+    }
+    await user.save();
+
     return res.status(200).json({
       message: "Профиль успешно обновлен",
       success: true,
