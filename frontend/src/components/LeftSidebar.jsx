@@ -17,12 +17,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { setAuthUser } from "@/redux/authSlice";
 import CreatePost from "./CreatePost";
 import { setPosts, setSelectedPost } from "@/redux/postSlice";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Button } from "./ui/button";
+import { setAllNotifications, setLikeNotification } from "@/redux/rtnSlice";
 
 const LeftSidebar = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { user } = useSelector((store) => store.auth);
   const dispatch = useDispatch();
+  const { likeNotification } = useSelector(
+    (store) => store.realTimeNotification
+  );
   const logoutHandler = async () => {
     try {
       const res = await axios.get("http://localhost:8000/api/v1/user/logout", {
@@ -59,6 +65,9 @@ const LeftSidebar = () => {
     if (text === "Главная") {
       navigate("/");
     }
+    if (text === "Сообщения") {
+      navigate("/chat");
+    }
   };
   const sidebarItems = [
     { icon: <Home />, text: "Главная" },
@@ -78,6 +87,9 @@ const LeftSidebar = () => {
     },
     { icon: <LogOut />, text: "Выйти" },
   ];
+  const clearNotification = () => {
+    dispatch(setAllNotifications([]));
+  };
   return (
     <div className="fixed top-0 z-10 left-0 border-r border-gray-300 w-[16%] h-screen ">
       <div className="flex flex-col">
@@ -90,8 +102,54 @@ const LeftSidebar = () => {
               className="flex items-center gap-4 p-3 relative hover:bg-gray-100
               cursor-pointer rounded-lg my-3"
             >
-              {item.icon}
+              <span>{item.icon}</span>
               <span>{item.text}</span>
+              {item.text === "Уведомления" && likeNotification.length > 0 && (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      size="icon"
+                      className="rounded-full h-5 w-5 absolute bottom-6 left-6 bg-red-600 text-white"
+                    >
+                      {likeNotification.length}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <div>
+                      {likeNotification.length === 0
+                        ? "Нет уведомлений"
+                        : likeNotification.map((item) => {
+                            return (
+                              <div
+                                key={item.userId}
+                                className="flex items-center gap-2"
+                              >
+                                <Avatar>
+                                  <AvatarImage
+                                    src={
+                                      "http://localhost:8000" +
+                                      item.userDetails.profilePicture
+                                    }
+                                  />
+                                  <AvatarFallback>CN</AvatarFallback>
+                                </Avatar>
+                                <p className="text-sm">
+                                  {item.userDetails?.username}
+                                </p>
+                                <span>Лайкнул Ваш пост</span>
+                              </div>
+                            );
+                          })}
+                    </div>
+                    <span
+                      onClick={clearNotification}
+                      className="text-red-300 cursor-pointer text-sm"
+                    >
+                      Очистить все
+                    </span>
+                  </PopoverContent>
+                </Popover>
+              )}
             </div>
           ))}
         </div>

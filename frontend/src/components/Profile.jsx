@@ -31,7 +31,7 @@ const Profile = () => {
           <section className="flex items-center justify-center">
             <Avatar className="h-32 w-32">
               <AvatarImage
-                src={`http://localhost:8000${userProfile.profilePicture}`}
+                src={`http://localhost:8000${userProfile?.profilePicture}`}
                 alt="avatar"
               />
               <AvatarFallback>

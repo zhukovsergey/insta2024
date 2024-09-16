@@ -98,7 +98,6 @@ export const login = async (req, res) => {
 };
 
 export const logout = async (req, res) => {
-  console.log("logout");
   try {
     return res.cookie("token", "", { maxAge: 0 }).json({
       message: "Вы вышли из аккаунта",
@@ -167,7 +166,6 @@ export const editProfile = async (req, res) => {
 };
 
 export const getSuggestedUsers = async (req, res) => {
-  console.log("suggested req");
   try {
     const suggestedUsers = await User.find({ _id: { $ne: req.id } }).select(
       "-password"

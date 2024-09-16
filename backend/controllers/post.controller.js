@@ -4,6 +4,7 @@ import { User } from "../model/user.model.js";
 import { Post } from "../model/post.model.js";
 import { Comment } from "../model/comment.model.js";
 import fs from "fs";
+import { getReceiverSocketId, io } from "../socket/socket.js";
 
 export const addNewPost = async (req, res) => {
   try {
@@ -119,6 +120,21 @@ export const likePost = async (req, res) => {
       $addToSet: { likes: likeKrneWalaUserKiId },
     });
     await post.save();
+    const user = await User.findById(likeKrneWalaUserKiId).select(
+      "username profilePicture"
+    );
+    const postOwnerId = post.author.toString();
+    if (postOwnerId !== likeKrneWalaUserKiId) {
+      const notification = {
+        type: "like",
+        senderId: likeKrneWalaUserKiId,
+        userDetails: user,
+        postId,
+        message: "Ваша запись была лайкнута",
+      };
+      const postOwnerSocketId = getReceiverSocketId(postOwnerId);
+      io.to(postOwnerSocketId).emit("notification", notification);
+    }
     return res.status(200).json({
       success: true,
       message: "Пост успешно лайкнут",
@@ -142,6 +158,23 @@ export const dislikePost = async (req, res) => {
       $pull: { likes: likeKrneWalaUserKiId },
     });
     await post.save();
+
+    const user = await User.findById(likeKrneWalaUserKiId).select(
+      "username profilePicture"
+    );
+    const postOwnerId = post.author.toString();
+    if (postOwnerId !== likeKrneWalaUserKiId) {
+      // emit a notification event
+      const notification = {
+        type: "dislike",
+        userId: likeKrneWalaUserKiId,
+        userDetails: user,
+        postId,
+        message: "Your post was liked",
+      };
+      const postOwnerSocketId = getReceiverSocketId(postOwnerId);
+      io.to(postOwnerSocketId).emit("notification", notification);
+    }
     return res.status(200).json({
       success: true,
       message: "Пост успешно дизлайкнут",

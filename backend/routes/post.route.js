@@ -19,7 +19,7 @@ const router = express.Router();
 router
   .route("/addpost")
   .post(isAuthenticated, upload.single("image"), addNewPost);
-router.route("/all").get(isAuthenticated, getAllPost);
+router.route("/all").get(getAllPost);
 router.route("/userpost/all").post(isAuthenticated, getUserPost);
 router.route("/:id/like").get(isAuthenticated, likePost);
 router.route("/:id/dislike").get(isAuthenticated, dislikePost);

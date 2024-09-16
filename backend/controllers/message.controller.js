@@ -1,10 +1,13 @@
 import { Conversation } from "../model/conversation.model.js";
+import { getReceiverSocketId, io } from "../socket/socket.js";
+import { Message } from "../model/message.model.js";
 
 export const sendMessage = async (req, res) => {
   try {
     const senderId = req.id;
     const receiverId = req.params.id;
     const { message } = req.body;
+    console.log(req.body);
     let conversation = await Conversation.findOne({
       participants: { $all: [senderId, receiverId] },
     });
@@ -24,6 +27,10 @@ export const sendMessage = async (req, res) => {
       conversation.messages.push(newMessage._id);
     }
     await Promise.all([conversation.save(), newMessage.save()]);
+
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    io.to(receiverSocketId).emit("newMessage", newMessage);
+
     return res.status(200).json({ success: true, newMessage });
   } catch (error) {
     console.log(error);
@@ -36,12 +43,10 @@ export const getMessage = async (req, res) => {
     const receiverId = req.params.id;
     const conversation = await Conversation.findOne({
       participants: { $all: [senderId, receiverId] },
-    });
+    }).populate("messages");
     if (!conversation)
-      return res.status(200).josn({
-        success: false,
-        message: [],
-      });
+      return res.status(200).json({ success: true, messages: [] });
+
     return res
       .status(200)
       .json({ success: true, messages: conversation?.messages });
